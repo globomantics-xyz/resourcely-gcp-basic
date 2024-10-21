@@ -27,13 +27,13 @@ jobs:
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
           project_id: ${{ secrets.PROJECT_ID }}
 
-      - name: 'Read JSON key'
-        run: | 
-            cat ${{ steps.gcloud_auth.outputs.credentials_file_path }} | jq .
-            cat ${{ steps.gcloud_auth.outputs.access_token }} | jq .
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
     
-      - name: Authenticate to GCP
-        run: gcloud auth list
+      - name: Terraform Init
+        run: terraform init
 
-      - name: List GCP projects
-        run: gcloud projects list
+      - name: Terraform Plan
+        run: terraform plan -var "project_id=${{ secrets.PROJECT_ID }}" -out=plan.tfplan
