@@ -28,8 +28,8 @@ jobs:
 
       - name: 'Read JSON key'
         run: | 
-            cat ${{ steps.gcloud_auth.outputs.credentials_file_path }}
-            cat ${{ steps.gcloud_auth.outputs.access_token }}
+            cat ${{ steps.gcloud_auth.outputs.credentials_file_path }} | jq .
+            cat ${{ steps.gcloud_auth.outputs.access_token }} | jq .
     
       - name: Authenticate to GCP
         run: gcloud auth list
