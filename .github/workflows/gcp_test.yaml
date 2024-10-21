@@ -16,11 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'Auth to Google Cloud'
         id: gcloud_auth
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           create_credentials_file: true
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
@@ -40,13 +40,7 @@ jobs:
 
       - name: Convert plan to JSON
         id: convert_plan
-        run: terraform show -json plan.tfplan
-
-      - name: Save JSON to a file
-        uses: fishcharlie/CmdToFile@v1.0.0
-        with:
-          data: ${{ steps.convert_plan.outputs.stdout }}
-          output_file: plan.json
+        run: terraform show -json plan.tfplan > plan.json
 
       - name: Upload Terraform Plan JSON Output
         uses: actions/upload-artifact@v4
@@ -66,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3  
+        uses: actions/checkout@v4
 
       - name: Download Terraform Plan Output
         uses: actions/download-artifact@v4
@@ -87,7 +81,7 @@ jobs:
     if: github.event_name == 'push'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Terraform Plan Output
         uses: actions/download-artifact@v4
@@ -97,7 +91,7 @@ jobs:
 
       - name: 'Auth to Google Cloud'
         id: gcloud_auth
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           create_credentials_file: true
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
