@@ -12,7 +12,7 @@ permissions:
 
 jobs:
 
-  build:
+  terraform-plan:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -37,3 +37,80 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan -var "project_id=${{ secrets.PROJECT_ID }}" -out=plan.tfplan
+
+      - name: Convert plan to JSON
+        id: convert_plan
+        run: terraform show -json plan.tfplan
+
+      - name: Save JSON to a file
+        uses: fishcharlie/CmdToFile@v1.0.0
+        with:
+          data: ${{ steps.convert_plan.outputs.stdout }}
+          output_file: plan.json
+
+      - name: Upload Terraform Plan JSON Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: plan-file-json
+          path: plan.json
+
+      - name: Upload Terraform Plan File
+        uses: actions/upload-artifact@v4
+        with:
+          name: plan-file
+          path: plan.tfplan
+
+  resourcely-ci:
+    needs: terraform-plan
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3  
+
+      - name: Download Terraform Plan Output
+        uses: actions/download-artifact@v4
+        with:
+          name: plan-file-json
+          path: tf-plan-files/
+  
+      - name: Resourcely CI
+        uses: Resourcely-Inc/resourcely-action@v1
+        with:
+          resourcely_api_token: ${{ secrets.RESOURCELY_API_TOKEN }}
+          resourcely_api_host: "https://api.resourcely.io"
+          tf_plan_directory: "tf-plan-files"
+
+  terraform-apply:
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download Terraform Plan Output
+        uses: actions/download-artifact@v4
+        with:
+          name: plan-file
+          path: tf-plan-files/
+
+      - name: 'Auth to Google Cloud'
+        id: gcloud_auth
+        uses: google-github-actions/auth@v1
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          project_id: ${{ secrets.PROJECT_ID }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply tf-plan-files/plan.tfplan
