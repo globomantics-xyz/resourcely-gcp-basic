@@ -53,3 +53,21 @@ resource "google_compute_firewall" "allow_http" {
 output "public_ip_address" {
   value = google_compute_address.static.address
 }
+
+resource "google_storage_bucket" "rt123_qqkWqb2aKK6qVYGe" {
+  name                        = "rt123-inhertied"
+  location                    = "US-CENTRAL1"
+  force_destroy               = true
+  public_access_prevention    = "inherited"
+  uniform_bucket_level_access = true
+
+  lifecycle_rule {
+    condition {
+      age = 7
+    }
+
+    action {
+      type = "AbortIncompleteMultipartUpload"
+    }
+  }
+}
