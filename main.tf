@@ -55,7 +55,7 @@ output "public_ip_address" {
 }
 
 resource "google_storage_bucket" "rt123_qqkWqb2aKK6qVYGe" {
-  name                        = "rt123"
+  name                        = "rt123-buck"
   location                    = "US-CENTRAL1"
   force_destroy               = true
   public_access_prevention    = "enforced"
