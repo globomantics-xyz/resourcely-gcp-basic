@@ -1,4 +1,4 @@
-name: GCP Auth Test
+name: GCP Deploy
 
 on:
   push:
