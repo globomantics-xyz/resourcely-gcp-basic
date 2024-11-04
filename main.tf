@@ -58,7 +58,7 @@ resource "google_storage_bucket" "rt123_qqkWqb2aKK6qVYGe" {
   name                        = "rt123-inhertied"
   location                    = "US-CENTRAL1"
   force_destroy               = true
-  public_access_prevention    = "inherited"
+  public_access_prevention    = "enforced"
   uniform_bucket_level_access = true
 
   lifecycle_rule {
