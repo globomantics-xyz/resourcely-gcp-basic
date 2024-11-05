@@ -20,3 +20,21 @@ resource "google_storage_bucket" "neds-bucket-8679_p8Nhwe76WrML7b64" {
     }
   }
 }
+
+resource "google_storage_bucket" "testing-12345_KeKqTmuP4M7qqTjm" {
+  name                        = "testing-12345"
+  location                    = "ASIA-EAST2"
+  force_destroy               = true
+  public_access_prevention    = "enforced"
+  uniform_bucket_level_access = true
+
+  lifecycle_rule {
+    condition {
+      age = 7
+    }
+
+    action {
+      type = "AbortIncompleteMultipartUpload"
+    }
+  }
+}
